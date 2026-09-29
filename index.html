@@ -1,55 +1,175 @@
 
-Files
-my-trading-bot
-/
-index.html
-in main
-Cancel changes
-Commit changes...
-Edit
-Preview
-Spaces
-4
-No wrap
-1
-<! DOCTYPE html>
-2
+<!DOCTYPE html>
 <html lang="en">
-3
 <head>
-4
 <meta charset="UTF-8">
-5
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Trading Bot</title>
 
-6
-<title>To-Do List App</title>
-7
-
-8
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#10141c;color:white}
+.app{max-width:500px;margin:auto;padding:20px}
+h1{text-align:center;margin-bottom:25px}
+.card{background:#1b2230;border-radius:16px;padding:18px;margin-bottom:15px}
+.label{color:#aab3c2;font-size:14px}
+.price{font-size:30px;font-weight:bold;margin:8px 0}
+.signal{text-align:center;font-size:24px;font-weight:bold;padding:15px;border-radius:12px;background:#303846}
+.balance{font-size:25px;font-weight:bold}
+button{width:100%;padding:15px;border:0;border-radius:12px;margin-top:10px;font-size:17px;font-weight:bold}
+.start{background:#1976d2;color:white}
+.buy{background:#168a55;color:white}
+.sell{background:#c0392b;color:white}
+.reset{background:#555;color:white}
+.history{font-size:14px;line-height:1.8}
+</style>
 </head>
-9
+
 <body>
-10
-<div class="container">
-11
-<header>
-12
-<h1>
-13
+<div class="app">
 
-14
-</header>
-15
+<h1>🤖 My Trading Bot</h1>
 
-16
-<div class="input-section">
-17
-<input
-<meta name="viewport" content="width=device-
-<link rel="stylesheet" href="styles. css">
-My To-Do List</h1>
-<p class="subtitle"›Stay organized
-Use
-Control + Shift + m
-focus. Alternatively, use esc
-to toggle the tab key
+<div class="card">
+<div class="label">MARKET</div>
+<h2>BTC / USDT</h2>
+<div class="label">DEMO PRICE</div>
+<div class="price" id="price">$65,000.00</div>
+</div>
+
+<div class="card">
+<div class="label">BOT SIGNAL</div>
+<div class="signal" id="signal">🟡 HOLD</div>
+</div>
+
+<div class="card">
+<div class="label">DEMO BALANCE</div>
+<div class="balance" id="balance">$10,000.00</div>
+</div>
+
+<div class="card">
+<button class="start" onclick="toggleBot()" id="botButton">▶ START BOT</button>
+<button class="buy" onclick="buyBTC()">BUY BTC</button>
+<button class="sell" onclick="sellBTC()">SELL BTC</button>
+<button class="reset" onclick="resetBot()">RESET DEMO</button>
+</div>
+
+<div class="card">
+<div class="label">POSITION</div>
+<p id="position">No open position</p>
+</div>
+
+<div class="card">
+<div class="label">TRADE HISTORY</div>
+<div class="history" id="history">No trades yet.</div>
+</div>
+
+</div>
+
+<script>
+let balance=10000;
+let btc=0;
+let entryPrice=0;
+let price=65000;
+let botRunning=false;
+
+function updateScreen(){
+document.getElementById("price").innerText="$"+price.toFixed(2);
+document.getElementById("balance").innerText="$"+balance.toFixed(2);
+
+if(btc>0){
+let value=btc*price;
+let pnl=value-(btc*entryPrice);
+document.getElementById("position").innerText=
+"BTC: "+btc.toFixed(6)+" | Entry: $"+entryPrice.toFixed(2)+" | P/L: $"+pnl.toFixed(2);
+}else{
+document.getElementById("position").innerText="No open position";
+}
+}
+
+function toggleBot(){
+botRunning=!botRunning;
+let button=document.getElementById("botButton");
+
+if(botRunning){
+button.innerText="⏹ STOP BOT";
+document.getElementById("signal").innerText="🟢 BUY";
+}else{
+button.innerText="▶ START BOT";
+document.getElementById("signal").innerText="🟡 HOLD";
+}
+}
+
+function buyBTC(){
+if(btc>0){
+alert("You already have a demo position.");
+return;
+}
+
+let investment=balance*0.10;
+btc=investment/price;
+balance-=investment;
+entryPrice=price;
+
+addHistory("🟢 BUY "+btc.toFixed(6)+" BTC @ $"+price.toFixed(2));
+updateScreen();
+}
+
+function sellBTC(){
+if(btc<=0){
+alert("No BTC position to sell.");
+return;
+}
+
+let value=btc*price;
+let pnl=value-(btc*entryPrice);
+
+balance+=value;
+
+addHistory("🔴 SELL @ $"+price.toFixed(2)+" | P/L: $"+pnl.toFixed(2));
+
+btc=0;
+entryPrice=0;
+updateScreen();
+}
+
+function addHistory(text){
+let history=document.getElementById("history");
+
+if(history.innerText==="No trades yet."){
+history.innerHTML="";
+}
+
+history.innerHTML=text+"<br>"+history.innerHTML;
+}
+
+function resetBot(){
+balance=10000;
+btc=0;
+entryPrice=0;
+botRunning=false;
+
+document.getElementById("botButton").innerText="▶ START BOT";
+document.getElementById("signal").innerText="🟡 HOLD";
+document.getElementById("history").innerText="No trades yet.";
+
+updateScreen();
+}
+
+setInterval(function(){
+if(botRunning){
+price+=(Math.random()-0.5)*300;
+
+if(price<1000){
+price=1000;
+}
+
+updateScreen();
+}
+},3000);
+
+updateScreen();
+</script>
+
+</body>
+</html>
